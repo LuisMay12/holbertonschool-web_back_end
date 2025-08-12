@@ -49,17 +49,21 @@ class Server:
                 - data: the list of rows for this page
 
         Behavior:
-            - Skips missing indices (deleted rows) so the client doesn't miss items.
+            - Skips missing indices (deleted rows) so the
+            client doesn't miss items.
             - Asserts that `index` is within a valid range.
         """
         if index is None:
             index = 0
 
-        assert isinstance(index, int) and index >= 0, "index must be a non-negative integer"
-        assert isinstance(page_size, int) and page_size > 0, "page_size must be a positive integer"
+        assert isinstance(index, int) and index >= 0, \
+            "index must be a non-negative integer"
+        assert isinstance(page_size, int) and page_size > 0, \
+            "page_size must be a positive integer"
 
         indexed = self.indexed_dataset()
-        assert index < (len(indexed) if len(indexed) > 0 else 1), "index out of range"
+        assert index < (len(indexed) if len(indexed) > 0 else 1), \
+            "index out of range"
 
         data: List[List] = []
         current = index
