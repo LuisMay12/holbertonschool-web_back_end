@@ -6,11 +6,9 @@ class HolbertonClass {
     this._year = year;
     this._location = location;
   }
-
   get year() {
     return this._year;
   }
-
   get location() {
     return this._location;
   }
@@ -50,3 +48,6 @@ const student5 = new StudentHolberton('Jason', 'Sandler', class2019);
 // Export default as required by 9-main.js
 const listOfStudents = [student1, student2, student3, student4, student5];
 export default listOfStudents;
+
+// Named exports
+export { HolbertonClass, StudentHolberton };
