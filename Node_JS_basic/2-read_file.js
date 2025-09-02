@@ -1,56 +1,50 @@
-// 3-read_file_async.js
+// 2-read_file.js
 const fs = require('fs');
 
 function countStudents(path) {
-  return new Promise((resolve, reject) => {
-    fs.readFile(path, 'utf-8', (err, data) => {
-      if (err) {
-        reject(new Error('Cannot load the database'));
-        return;
-      }
+  try {
+    const content = fs.readFileSync(path, 'utf-8');
 
-      // Split lines, trim, and drop empties
-      const lines = data
-        .split('\n')
-        .map((l) => l.trim())
-        .filter((l) => l.length > 0);
+    // Split, trim, and drop empty lines (trailing blanks are not valid students)
+    const lines = content
+      .split('\n')
+      .map((l) => l.trim())
+      .filter((l) => l.length > 0);
 
-      if (lines.length <= 1) {
-        console.log('Number of students: 0');
-        resolve();
-        return;
-      }
+    if (lines.length <= 1) {
+      console.log('Number of students: 0');
+      return;
+    }
 
-      // Remove header
-      const [, ...rows] = lines;
+    // Remove header
+    const rows = lines.slice(1);
 
-      // Group by field while preserving insertion order
-      const byField = new Map();
-      let total = 0;
+    // Group by field (4th column) and collect first names (1st column)
+    const byField = {};
+    let total = 0;
 
-      for (const row of rows) {
-        // Expect CSV with at least 4 columns
-        const parts = row.split(',');
-        if (parts.length < 4) continue;
+    for (const row of rows) {
+      const cols = row.split(',');
+      if (cols.length < 4) continue; // skip malformed rows
 
-        const firstName = parts[0].trim();
-        const field = parts[3].trim();
+      const firstName = cols[0].trim();
+      const field = cols[3].trim();
+      if (!firstName || !field) continue;
 
-        if (!firstName || !field) continue;
+      if (!byField[field]) byField[field] = [];
+      byField[field].push(firstName);
+      total += 1;
+    }
 
-        if (!byField.has(field)) byField.set(field, []);
-        byField.get(field).push(firstName);
-        total += 1;
-      }
-
-      console.log(`Number of students: ${total}`);
-      for (const [field, list] of byField.entries()) {
-        console.log(`Number of students in ${field}: ${list.length}. List: ${list.join(', ')}`);
-      }
-
-      resolve();
+    console.log(`Number of students: ${total}`);
+    // Print in insertion order (objects preserve key order for string keys)
+    Object.keys(byField).forEach((field) => {
+      const list = byField[field];
+      console.log(`Number of students in ${field}: ${list.length}. List: ${list.join(', ')}`);
     });
-  });
+  } catch (e) {
+    throw new Error('Cannot load the database');
+  }
 }
 
 module.exports = countStudents;
