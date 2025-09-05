@@ -9,18 +9,17 @@ class StudentsController {
     try {
       const byField = await readDatabase(dbPath);
 
-      // Sort fields alphabetically, case-insensitive (e.g., CS before SWE)
       const fields = Object.keys(byField)
         .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
 
       const lines = ['This is the list of our students'];
       for (const field of fields) {
-        const list = byField[field];
+        const list = byField[field] || [];
         lines.push(`Number of students in ${field}: ${list.length}. List: ${list.join(', ')}`);
       }
 
       res.status(200).send(lines.join('\n'));
-    } catch (err) {
+    } catch {
       res.status(500).send('Cannot load the database');
     }
   }

@@ -10,23 +10,25 @@ export default async function readDatabase(filePath) {
       .map((l) => l.trim())
       .filter((l) => l.length > 0);
 
-    // Expect header line present
+    // skip header
     const rows = lines.slice(1);
     const byField = {};
 
     for (const row of rows) {
       const cols = row.split(',');
-      if (cols.length < 4) continue; // skip malformed rows
+      if (cols.length < 4) continue;
+
       const firstName = cols[0].trim();
       const field = cols[3].trim();
       if (!firstName || !field) continue;
 
       if (!byField[field]) byField[field] = [];
-      byField[field].push(firstName); // order of appearance preserved
+      byField[field].push(firstName);
     }
 
     return byField;
-  } catch {
-    throw new Error('Cannot load the database');
+  } catch (err) {
+    // IMPORTANT: reject with the original error (ENOENT, etc.)
+    throw err;
   }
 }
